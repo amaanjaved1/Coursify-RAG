@@ -23,6 +23,7 @@ ${input.userQuery}
 
 Detected intent: ${input.intent.intent}
 Entities: ${JSON.stringify(input.intent.entities)}
+Data: SQL=${input.intent.needsSQL}, vector=${input.intent.needsVector}
 Complexity: ${input.intent.complexity}
 
 Structured Data:

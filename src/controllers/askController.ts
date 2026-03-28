@@ -1,14 +1,35 @@
 import type { Request, Response } from "express";
 import { resolveIntent } from "../services/intent/intentService";
-import { getCourseStats, getProfessorRatings } from "../services/sql/sqlService";
+import { getCourseStats } from "../services/sql/sqlService";
 import { searchSimilar } from "../services/vector/vectorService";
 import { buildContext } from "../services/prompt/contextBuilder";
 import { generateAnswer } from "../services/llm/llmService";
 import { parseAskBody } from "../utils/validateAskBody";
-import type { AskDebugPayload, AskResponseBody } from "../types";
+import type { AskDebugPayload, AskResponseBody, IntentResult } from "../types";
 
-function needsCourseStats(intent: string): boolean {
-  return intent === "course_difficulty" || intent === "grade_distribution";
+function courseCodesForSql(resolved: IntentResult): string[] {
+  if (resolved.entities.course_codes?.length) {
+    return resolved.entities.course_codes;
+  }
+  if (resolved.entities.course_code) {
+    return [resolved.entities.course_code];
+  }
+  return [];
+}
+
+async function fetchStructuredData(resolved: IntentResult): Promise<Record<string, unknown> | undefined> {
+  if (!resolved.needsSQL) return undefined;
+
+  const codes = courseCodesForSql(resolved);
+  if (codes.length === 0) return undefined;
+
+  const statsList = await Promise.all(codes.map((c) => getCourseStats(c)));
+  if (codes.length === 1) {
+    return { courseStats: statsList[0] };
+  }
+  return {
+    courseStatsByCourse: Object.fromEntries(codes.map((c, i) => [c, statsList[i]])),
+  };
 }
 
 export async function askHandler(req: Request, res: Response): Promise<void> {
@@ -16,18 +37,10 @@ export async function askHandler(req: Request, res: Response): Promise<void> {
     const { query } = parseAskBody(req.body);
     const intent = resolveIntent(query);
 
-    const sqlPromise = (async () => {
-      const out: Record<string, unknown> = {};
-      if (needsCourseStats(intent.intent) && intent.entities.courseCode) {
-        out.courseStats = await getCourseStats(intent.entities.courseCode);
-      }
-      if (intent.intent === "professor_rating" && intent.entities.professorName) {
-        out.professorRatings = await getProfessorRatings(intent.entities.professorName);
-      }
-      return Object.keys(out).length ? out : undefined;
-    })();
+    const sqlPromise = fetchStructuredData(intent);
+    const vectorPromise = intent.needsVector ? searchSimilar(query) : Promise.resolve([]);
 
-    const [vectorResults, sqlData] = await Promise.all([searchSimilar(query), sqlPromise]);
+    const [sqlData, vectorResults] = await Promise.all([sqlPromise, vectorPromise]);
 
     const prompt = buildContext({
       userQuery: query,
