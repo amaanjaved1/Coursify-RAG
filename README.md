@@ -1,10 +1,39 @@
-# Coursify-RAG
+# 🤖 Coursify — RAG (Queen's Answers)
 
-Course insights API: rule-based intent routing, mock structured data and vector snippets, and Gemini for the final answer.
+## 💡 What is Coursify?
 
-## Python (Flask) — maintained server
+**Coursify** is a course-insights platform for Queen's University students. It features course grade distributions, relevant Reddit and RateMyProfessors comments, and also an AI Chatbot.
 
-Requirements: Python 3.11+.
+**This repository** is the **Queen's Answers** backend: a Flask API with rule-based intent routing, structured data and vector snippets, and **Gemini** for the final answer. The Next.js app lives in **Coursify-WebApp**.
+
+---
+
+## 🔗 Related repositories
+
+| Repository                                                           | Purpose                                                                                 |
+| -------------------------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| [Coursify-WebApp](https://github.com/CoursifyQU/Coursify-WebApp)     | Full stack application                                                                  |
+| [Coursify-Scrapers](https://github.com/CoursifyQU/Coursify-Scrapers) | Scheduled data scrapers for the Queen's academic calendar, Reddit, and RateMyProfessors |
+| [Coursify-RAG](https://github.com/amaanjaved1/Coursify-RAG)          | Queen's Answers - Our chatbot                                                           |
+
+🌐 [**Live site**](https://www.coursify.ca/)
+
+---
+
+## 🛠️ Tech stack
+
+- **Python 3.11+**
+- **Flask** — HTTP API (`app/`, `run.py`, `wsgi.py`)
+- **Google Gemini** — answer generation (`GEMINI_API_KEY`)
+- **pytest** — unit tests; optional **integration** marks for live Gemini calls
+
+A legacy **Express / TypeScript** implementation remains under `src/` for reference. New work should target the Flask app in `app/`.
+
+---
+
+## 🚀 Setup & development
+
+**Requirements:** Python 3.11+.
 
 ```bash
 cd Coursify-RAG
@@ -14,6 +43,8 @@ pip install -r requirements.txt
 copy .env.example .env    # set GEMINI_API_KEY
 python run.py
 ```
+
+**Endpoints**
 
 - Health: `GET http://localhost:3000/health`
 - Ask: `POST http://localhost:3000/ask` with JSON `{"query":"Is CISC 121 hard?"}`  
@@ -33,6 +64,12 @@ Integration tests (live Gemini; requires `GEMINI_API_KEY`):
 python -m pytest -m integration -q
 ```
 
-## Legacy TypeScript
+---
 
-The previous Express implementation remains under `src/` for reference. New work should target the Flask app in `app/`.
+## 🤝 Contributing
+
+Contributions are welcome.
+
+- 🐛 **Issues** — Open an issue for bugs, routing behavior, or Gemini integration questions before large changes.
+- 🔀 **Pull requests** — Keep changes focused; prefer the Flask app in `app/` over legacy `src/`.
+- 🔐 **Security** — Do not commit API keys; use `.env.example` as a template only.
