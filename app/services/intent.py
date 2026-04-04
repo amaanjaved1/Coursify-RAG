@@ -1,6 +1,4 @@
-"""
-Rule-based intent resolution (parity with src/services/intent/intentService.ts).
-"""
+"""Rule-based intent resolution."""
 
 from __future__ import annotations
 

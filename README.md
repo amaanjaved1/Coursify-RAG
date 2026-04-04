@@ -27,8 +27,6 @@
 - **Google Gemini** — answer generation (`GEMINI_API_KEY`)
 - **pytest** — unit tests; optional **integration** marks for live Gemini calls
 
-A legacy **Express / TypeScript** implementation remains under `src/` for reference. New work should target the Flask app in `app/`.
-
 ---
 
 ## 🚀 Setup & development
@@ -71,5 +69,5 @@ python -m pytest -m integration -q
 Contributions are welcome.
 
 - 🐛 **Issues** — Open an issue for bugs, routing behavior, or Gemini integration questions before large changes.
-- 🔀 **Pull requests** — Keep changes focused; prefer the Flask app in `app/` over legacy `src/`.
+- 🔀 **Pull requests** — Keep changes focused on the Flask app in `app/`.
 - 🔐 **Security** — Do not commit API keys; use `.env.example` as a template only.
